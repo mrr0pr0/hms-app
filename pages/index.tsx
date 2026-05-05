@@ -17,6 +17,7 @@ interface Issue {
 interface User {
   id: number
   hash: string
+  username?: string
   is_admin: boolean
 }
 
@@ -64,15 +65,21 @@ export default function Home() {
   // ── Init user ──────────────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {
-      let hash = localStorage.getItem('hms_hash')
+      const hash = localStorage.getItem('userHash')
       if (!hash) {
-        hash = genHash()
-        localStorage.setItem('hms_hash', hash)
+        window.location.href = '/login'
+        return
       }
       const res = await fetch(`/api/users?hash=${hash}`)
-      const u = await res.json()
-      setUser(u)
-      await loadIssues()
+      if (res.ok) {
+        const u = await res.json()
+        setUser(u)
+        await loadIssues()
+      } else {
+        localStorage.removeItem('userHash')
+        window.location.href = '/login'
+        return
+      }
       setLoading(false)
     }
     init()
@@ -126,28 +133,30 @@ export default function Home() {
     setIssues(prev => prev.map(i => i.id === id ? { ...i, solution } : i))
   }
 
-  // ── Become admin ───────────────────────────────────────────────────────────
+  // ── Logout ─────────────────────────────────────────────────────────────────
+  function logout() {
+    localStorage.removeItem('userHash')
+    window.location.href = '/login'
+  }
+
   async function tryAdminCode() {
     if (!user) return
+    if (!adminCodeInput.trim()) return
+
     const res = await fetch('/api/admin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hash: user.hash, code: adminCodeInput }),
+      body: JSON.stringify({ hash: user.hash, code: adminCodeInput.trim() }),
     })
+
     if (res.ok) {
-      const u = await res.json()
-      setUser(u)
+      const updatedUser = await res.json()
+      setUser({ ...user, is_admin: true, ...updatedUser })
       setShowAdminInput(false)
       setAdminCodeInput('')
     } else {
-      alert('Feil kode.')
+      alert('Ugyldig admin-kode')
     }
-  }
-
-  async function demoteAdmin() {
-    // Simply remove locally — a real app would have a revoke endpoint
-    if (!user) return
-    setUser({ ...user, is_admin: false })
   }
 
   // ── Filter ─────────────────────────────────────────────────────────────────
@@ -179,13 +188,12 @@ export default function Home() {
         </div>
         <div className={styles.headerRight}>
           {user?.is_admin && <span className={styles.adminBadge}>ADMIN</span>}
-          <span
-            className={styles.userBadge}
-            onClick={() => user?.is_admin ? demoteAdmin() : setShowAdminInput(v => !v)}
-            title={user?.is_admin ? 'Klikk for å logge ut admin' : 'Klikk for admin-tilgang'}
-          >
-            {user?.hash}
+          <span className={styles.userBadge}>
+            {user?.username || user?.hash}
           </span>
+          <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={logout}>
+            Logout
+          </button>
           <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
             + Ny sak
           </button>

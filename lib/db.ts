@@ -12,9 +12,17 @@ export async function initDB() {
     CREATE TABLE IF NOT EXISTS users (
       id        SERIAL PRIMARY KEY,
       hash      TEXT UNIQUE NOT NULL,
+      username  TEXT UNIQUE,
+      password_hash TEXT,
       is_admin  BOOLEAN NOT NULL DEFAULT false,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `
+  await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT UNIQUE
+  `
+  await sql`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT
   `
   await sql`
     CREATE TABLE IF NOT EXISTS issues (
@@ -45,6 +53,8 @@ export type Issue = {
 export type User = {
   id: number
   hash: string
+  username?: string
+  password_hash?: string
   is_admin: boolean
   created_at: string
 }
