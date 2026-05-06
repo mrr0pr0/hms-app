@@ -28,7 +28,9 @@
   gap: 4px;
 }
 
-.logo span:first-child { color: var(--text3); }
+.logo span:first-child {
+  color: var(--text3);
+}
 
 .logoSub {
   font-size: 10px;
@@ -64,7 +66,9 @@
   cursor: pointer;
   transition: border-color 0.1s;
 }
-.userBadge:hover { border-color: var(--text2); }
+.userBadge:hover {
+  border-color: var(--text2);
+}
 
 /* ── Buttons ── */
 .btn {
@@ -80,18 +84,33 @@
   transition: all 0.1s;
   letter-spacing: 0.03em;
 }
-.btn:hover { border-color: var(--text2); background: var(--bg3); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn:hover {
+  border-color: var(--text2);
+  background: var(--bg3);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .btnPrimary {
   border-color: var(--text);
   background: var(--text);
   color: var(--bg);
 }
-.btnPrimary:hover { background: #ccc; border-color: #ccc; }
-.btnPrimary:disabled { background: var(--text3); border-color: var(--text3); }
+.btnPrimary:hover {
+  background: #ccc;
+  border-color: #ccc;
+}
+.btnPrimary:disabled {
+  background: var(--text3);
+  border-color: var(--text3);
+}
 
-.btnSmall { font-size: 10px; padding: 4px 8px; }
+.btnSmall {
+  font-size: 10px;
+  padding: 4px 8px;
+}
 
 /* ── Admin bar ── */
 .adminBar {
@@ -116,9 +135,16 @@
   border-radius: 2px;
   width: 200px;
 }
-.adminInput:focus { outline: none; border-color: var(--text2); }
+.adminInput:focus {
+  outline: none;
+  border-color: var(--text2);
+}
 
-.hint { color: var(--text3); font-size: 10px; margin-left: 8px; }
+.hint {
+  color: var(--text3);
+  font-size: 10px;
+  margin-left: 8px;
+}
 
 /* ── Main ── */
 .main {
@@ -153,7 +179,8 @@
   letter-spacing: 0.05em;
   transition: all 0.1s;
 }
-.filterBtn:hover, .filterBtn.active {
+.filterBtn:hover,
+.filterBtn.active {
   border-color: var(--text2);
   color: var(--text);
   background: var(--bg3);
@@ -172,7 +199,9 @@
   min-width: 860px;
 }
 
-.table thead { border-bottom: 1px solid var(--border2); }
+.table thead {
+  border-bottom: 1px solid var(--border2);
+}
 
 .table th {
   text-align: left;
@@ -187,9 +216,15 @@
   text-transform: uppercase;
 }
 
-.colIssue { min-width: 240px; }
-.colStatus { width: 110px; }
-.colSolution { min-width: 180px; }
+.colIssue {
+  min-width: 240px;
+}
+.colStatus {
+  width: 110px;
+}
+.colSolution {
+  min-width: 180px;
+}
 
 .table td {
   padding: 12px 14px;
@@ -197,8 +232,12 @@
   vertical-align: top;
 }
 
-.row:last-child td { border-bottom: none; }
-.row:hover td { background: var(--bg2); }
+.row:last-child td {
+  border-bottom: none;
+}
+.row:hover td {
+  background: var(--bg2);
+}
 
 .issueTitle {
   font-weight: 500;
@@ -233,7 +272,10 @@
   appearance: none;
   -webkit-appearance: none;
 }
-.statusSelect:focus { outline: none; border-color: var(--text2); }
+.statusSelect:focus {
+  outline: none;
+  border-color: var(--text2);
+}
 
 .solutionText {
   font-size: 12px;
@@ -241,7 +283,9 @@
   line-height: 1.4;
 }
 
-.dash { color: var(--text3); }
+.dash {
+  color: var(--text3);
+}
 
 .solutionInput {
   width: 100%;
@@ -254,7 +298,10 @@
   border-radius: 2px;
   resize: vertical;
 }
-.solutionInput:focus { outline: none; border-color: var(--text2); }
+.solutionInput:focus {
+  outline: none;
+  border-color: var(--text2);
+}
 
 /* ── Empty state ── */
 .empty {
@@ -266,14 +313,22 @@
   letter-spacing: 0.05em;
 }
 
-.emptyIcon { font-size: 28px; margin-bottom: 10px; opacity: 0.3; }
-.emptySub { margin-top: 6px; color: var(--text3); font-size: 11px; }
+.emptyIcon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  opacity: 0.3;
+}
+.emptySub {
+  margin-top: 6px;
+  color: var(--text3);
+  font-size: 11px;
+}
 
 /* ── Modal ── */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.82);
+  background: rgba(0, 0, 0, 0.82);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -299,7 +354,9 @@
   color: var(--text);
 }
 
-.field { margin-bottom: 16px; }
+.field {
+  margin-bottom: 16px;
+}
 
 .field label {
   display: block;
@@ -324,7 +381,10 @@
   resize: vertical;
 }
 .field input:focus,
-.field textarea:focus { outline: none; border-color: var(--text2); }
+.field textarea:focus {
+  outline: none;
+  border-color: var(--text2);
+}
 
 .modalMeta {
   font-family: var(--mono);
@@ -332,7 +392,9 @@
   color: var(--text3);
   margin-bottom: 4px;
 }
-.modalMeta span { color: var(--text2); }
+.modalMeta span {
+  color: var(--text2);
+}
 
 .modalActions {
   display: flex;

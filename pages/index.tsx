@@ -1,184 +1,214 @@
-import { useState, useEffect, useCallback } from 'react'
-import styles from '../styles/Home.module.css'
+import { useState, useEffect, useCallback } from "react";
+import styles from "../styles/Home.module.css";
 
 // ── Types ────────────────────────────────────────────────────────────────────
-type Status = '' | 'oppfattet' | 'blir_gjort' | 'fullfort' | 'ikke_viktig'
+type Status = "" | "oppfattet" | "blir_gjort" | "fullfort" | "ikke_viktig";
 
 interface Issue {
-  id: number
-  title: string
-  description: string
-  status: Status
-  solution: string
-  avvik_type: '' | 'ergonomi' | 'sikkerhet' | 'miljo'
-  created_by: string
-  created_at: string
+  id: number;
+  title: string;
+  description: string;
+  status: Status;
+  solution: string;
+  avvik_type: "" | "ergonomi" | "sikkerhet" | "miljo";
+  created_by: string;
+  created_at: string;
 }
 
 interface User {
-  id: number
-  hash: string
-  username?: string
-  is_admin: boolean
+  id: number;
+  hash: string;
+  username?: string;
+  is_admin: boolean;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function genHash() {
-  return 'usr_' + Math.random().toString(36).substr(2, 8).toUpperCase()
+  return "usr_" + Math.random().toString(36).substr(2, 8).toUpperCase();
 }
 
 function formatDate(ts: string) {
-  return new Date(ts).toLocaleDateString('no-NO', {
-    day: '2-digit', month: '2-digit', year: '2-digit',
-  })
+  return new Date(ts).toLocaleDateString("no-NO", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
 }
 
 const STATUS_LABELS: Record<Status, string> = {
-  '': 'Ikke behandlet',
-  oppfattet: 'Oppfattet',
-  blir_gjort: 'Blir gjort',
-  fullfort: 'Fullført',
-  ikke_viktig: 'Ikke viktig',
-}
+  "": "Ikke behandlet",
+  oppfattet: "Oppfattet",
+  blir_gjort: "Blir gjort",
+  fullfort: "Fullført",
+  ikke_viktig: "Ikke viktig",
+};
 
 const DOT_COLORS: Record<Status, string> = {
-  '': '#3a3a3a',
-  oppfattet: '#eab308',
-  blir_gjort: '#3b82f6',
-  fullfort: '#22c55e',
-  ikke_viktig: '#555',
-}
+  "": "#3a3a3a",
+  oppfattet: "#eab308",
+  blir_gjort: "#3b82f6",
+  fullfort: "#22c55e",
+  ikke_viktig: "#555",
+};
 
 // ── Component ────────────────────────────────────────────────────────────────
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null)
-  const [issues, setIssues] = useState<Issue[]>([])
-  const [filter, setFilter] = useState<'all' | Status | 'open'>('all')
-  const [showModal, setShowModal] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [newDesc, setNewDesc] = useState('')
-  const [newAvvikType, setNewAvvikType] = useState<'' | 'ergonomi' | 'sikkerhet' | 'miljo'>('')
-  const [adminCodeInput, setAdminCodeInput] = useState('')
-  const [showAdminInput, setShowAdminInput] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [solutionDrafts, setSolutionDrafts] = useState<Record<number, string>>({})
+  const [user, setUser] = useState<User | null>(null);
+  const [issues, setIssues] = useState<Issue[]>([]);
+  const [filter, setFilter] = useState<"all" | Status | "open">("all");
+  const [showModal, setShowModal] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newAvvikType, setNewAvvikType] = useState<
+    "" | "ergonomi" | "sikkerhet" | "miljo"
+  >("");
+  const [adminCodeInput, setAdminCodeInput] = useState("");
+  const [showAdminInput, setShowAdminInput] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [solutionDrafts, setSolutionDrafts] = useState<Record<number, string>>(
+    {},
+  );
 
   // ── Init user ──────────────────────────────────────────────────────────────
   useEffect(() => {
     async function init() {
-      const hash = localStorage.getItem('userHash')
+      const hash = localStorage.getItem("userHash");
       if (!hash) {
-        window.location.href = '/login'
-        return
+        window.location.href = "/login";
+        return;
       }
-      const res = await fetch(`/api/users?hash=${hash}`)
+      const res = await fetch(`/api/users?hash=${hash}`);
       if (res.ok) {
-        const u = await res.json()
-        setUser(u)
-        await loadIssues()
+        const u = await res.json();
+        setUser(u);
+        await loadIssues();
       } else {
-        localStorage.removeItem('userHash')
-        window.location.href = '/login'
-        return
+        localStorage.removeItem("userHash");
+        window.location.href = "/login";
+        return;
       }
-      setLoading(false)
+      setLoading(false);
     }
-    init()
-  }, [])
+    init();
+  }, []);
 
   // ── Load issues ────────────────────────────────────────────────────────────
   const loadIssues = useCallback(async () => {
-    const res = await fetch('/api/issues')
-    const data = await res.json()
-    setIssues(data)
+    const res = await fetch("/api/issues");
+    const data = await res.json();
+    setIssues(data);
     // prime solution drafts
-    const drafts: Record<number, string> = {}
-    for (const i of data) drafts[i.id] = i.solution
-    setSolutionDrafts(drafts)
-  }, [])
+    const drafts: Record<number, string> = {};
+    for (const i of data) drafts[i.id] = i.solution;
+    setSolutionDrafts(drafts);
+  }, []);
 
   // ── Submit issue ───────────────────────────────────────────────────────────
   async function submitIssue() {
-    if (!newTitle.trim() || !user) return
-    setSaving(true)
-    await fetch('/api/issues', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTitle.trim(), description: newDesc.trim(), avvik_type: newAvvikType, created_by: user.hash }),
-    })
-    await loadIssues()
-    setNewTitle(''); setNewDesc(''); setNewAvvikType(''); setShowModal(false)
-    setSaving(false)
+    if (!newTitle.trim() || !user) return;
+    setSaving(true);
+    await fetch("/api/issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: newTitle.trim(),
+        description: newDesc.trim(),
+        avvik_type: newAvvikType,
+        created_by: user.hash,
+      }),
+    });
+    await loadIssues();
+    setNewTitle("");
+    setNewDesc("");
+    setNewAvvikType("");
+    setShowModal(false);
+    setSaving(false);
   }
 
   // ── Update status ──────────────────────────────────────────────────────────
   async function updateStatus(id: number, status: Status) {
-    if (!user) return
-    await fetch('/api/issues', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+    if (!user) return;
+    await fetch("/api/issues", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status, hash: user.hash }),
-    })
-    setIssues(prev => prev.map(i => i.id === id ? { ...i, status } : i))
+    });
+    setIssues((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
   }
 
   // ── Update solution ────────────────────────────────────────────────────────
   async function saveSolution(id: number) {
-    if (!user) return
-    const solution = solutionDrafts[id] ?? ''
-    await fetch('/api/issues', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+    if (!user) return;
+    const solution = solutionDrafts[id] ?? "";
+    await fetch("/api/issues", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, solution, hash: user.hash }),
-    })
-    setIssues(prev => prev.map(i => i.id === id ? { ...i, solution } : i))
+    });
+    setIssues((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, solution } : i)),
+    );
   }
 
   // ── Logout ─────────────────────────────────────────────────────────────────
   function logout() {
-    localStorage.removeItem('userHash')
-    window.location.href = '/login'
+    localStorage.removeItem("userHash");
+    window.location.href = "/login";
   }
 
   async function tryAdminCode() {
-    if (!user) return
-    if (!adminCodeInput.trim()) return
+    if (!user) return;
+    if (!adminCodeInput.trim()) return;
 
-    const res = await fetch('/api/admin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ hash: user.hash, code: adminCodeInput.trim() }),
-    })
+    });
 
     if (res.ok) {
-      const updatedUser = await res.json()
-      setUser({ ...user, is_admin: true, ...updatedUser })
-      setShowAdminInput(false)
-      setAdminCodeInput('')
+      const updatedUser = await res.json();
+      setUser({ ...user, is_admin: true, ...updatedUser });
+      setShowAdminInput(false);
+      setAdminCodeInput("");
     } else {
-      alert('Ugyldig admin-kode')
+      alert("Ugyldig admin-kode");
     }
   }
 
   // ── Filter ─────────────────────────────────────────────────────────────────
-  const filtered = issues.filter(i => {
-    if (filter === 'all') return true
-    if (filter === 'open') return !i.status || i.status === 'oppfattet' || i.status === 'blir_gjort'
-    return i.status === filter
-  })
+  const filtered = issues.filter((i) => {
+    if (filter === "all") return true;
+    if (filter === "open")
+      return !i.status || i.status === "oppfattet" || i.status === "blir_gjort";
+    return i.status === filter;
+  });
 
   const counts = {
     total: issues.length,
-    open: issues.filter(i => !i.status || i.status === 'oppfattet' || i.status === 'blir_gjort').length,
-    done: issues.filter(i => i.status === 'fullfort').length,
-  }
+    open: issues.filter(
+      (i) => !i.status || i.status === "oppfattet" || i.status === "blir_gjort",
+    ).length,
+    done: issues.filter((i) => i.status === "fullfort").length,
+  };
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'IBM Plex Mono, monospace', color: '#555', fontSize: 13 }}>
-      LASTER...
-    </div>
-  )
+  if (loading)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          fontFamily: "IBM Plex Mono, monospace",
+          color: "#555",
+          fontSize: 13,
+        }}
+      >
+        LASTER...
+      </div>
+    );
 
   return (
     <div className={styles.app}>
@@ -193,10 +223,16 @@ export default function Home() {
           <span className={styles.userBadge}>
             {user?.username || user?.hash}
           </span>
-          <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={logout}>
+          <button
+            className={`${styles.btn} ${styles.btnSecondary}`}
+            onClick={logout}
+          >
             Logout
           </button>
-          <button className={`${styles.btn} ${styles.btnPrimary}`} onClick={() => setShowModal(true)}>
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => setShowModal(true)}
+          >
             + Ny sak
           </button>
         </div>
@@ -211,12 +247,22 @@ export default function Home() {
             type="password"
             placeholder="Skriv inn kode..."
             value={adminCodeInput}
-            onChange={e => setAdminCodeInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && tryAdminCode()}
+            onChange={(e) => setAdminCodeInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && tryAdminCode()}
             autoFocus
           />
-          <button className={`${styles.btn} ${styles.btnSmall}`} onClick={tryAdminCode}>Logg inn</button>
-          <button className={`${styles.btn} ${styles.btnSmall}`} onClick={() => setShowAdminInput(false)}>Avbryt</button>
+          <button
+            className={`${styles.btn} ${styles.btnSmall}`}
+            onClick={tryAdminCode}
+          >
+            Logg inn
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnSmall}`}
+            onClick={() => setShowAdminInput(false)}
+          >
+            Avbryt
+          </button>
           <span className={styles.hint}>Hint: ADMIN123</span>
         </div>
       )}
@@ -225,17 +271,19 @@ export default function Home() {
         {/* ── Toolbar ── */}
         <div className={styles.toolbar}>
           <div className={styles.filters}>
-            {([
-              ['all', `ALLE (${counts.total})`],
-              ['open', `ÅPNE (${counts.open})`],
-              ['oppfattet', 'OPPFATTET'],
-              ['blir_gjort', 'BLIR GJORT'],
-              ['fullfort', `FULLFØRT (${counts.done})`],
-              ['ikke_viktig', 'IKKE VIKTIG'],
-            ] as [string, string][]).map(([val, label]) => (
+            {(
+              [
+                ["all", `ALLE (${counts.total})`],
+                ["open", `ÅPNE (${counts.open})`],
+                ["oppfattet", "OPPFATTET"],
+                ["blir_gjort", "BLIR GJORT"],
+                ["fullfort", `FULLFØRT (${counts.done})`],
+                ["ikke_viktig", "IKKE VIKTIG"],
+              ] as [string, string][]
+            ).map(([val, label]) => (
               <button
                 key={val}
-                className={`${styles.filterBtn} ${filter === val ? styles.active : ''}`}
+                className={`${styles.filterBtn} ${filter === val ? styles.active : ""}`}
                 onClick={() => setFilter(val as any)}
               >
                 {label}
@@ -265,16 +313,20 @@ export default function Home() {
                     <div className={styles.empty}>
                       <div className={styles.emptyIcon}>◻</div>
                       <div>Ingen saker</div>
-                      <div className={styles.emptySub}>Klikk «+ Ny sak» for å registrere et avvik</div>
+                      <div className={styles.emptySub}>
+                        Klikk «+ Ny sak» for å registrere et avvik
+                      </div>
                     </div>
                   </td>
                 </tr>
               )}
-              {filtered.map(issue => {
-                const isOppfattet = !!issue.status && issue.status !== 'ikke_viktig'
-                const isBliGjort = issue.status === 'blir_gjort' || issue.status === 'fullfort'
-                const isFullfort = issue.status === 'fullfort'
-                const isIkkeViktig = issue.status === 'ikke_viktig'
+              {filtered.map((issue) => {
+                const isOppfattet =
+                  !!issue.status && issue.status !== "ikke_viktig";
+                const isBliGjort =
+                  issue.status === "blir_gjort" || issue.status === "fullfort";
+                const isFullfort = issue.status === "fullfort";
+                const isIkkeViktig = issue.status === "ikke_viktig";
 
                 return (
                   <tr key={issue.id} className={styles.row}>
@@ -282,29 +334,41 @@ export default function Home() {
                     <td>
                       <div className={styles.issueTitle}>{issue.title}</div>
                       {issue.description && (
-                        <div className={styles.issueDesc}>{issue.description}</div>
+                        <div className={styles.issueDesc}>
+                          {issue.description}
+                        </div>
                       )}
                       {issue.avvik_type && (
-                        <div style={{
-                          display: 'inline-block',
-                          marginTop: 4,
-                          padding: '2px 6px',
-                          fontSize: 9,
-                          fontFamily: 'IBM Plex Mono, monospace',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          border: '1px solid #2a2a2a',
-                          borderRadius: 3,
-                          color: issue.avvik_type === 'ergonomi' ? '#3b82f6'
-                               : issue.avvik_type === 'sikkerhet' ? '#ef4444'
-                               : '#22c55e',
-                        }}>
-                          {issue.avvik_type === 'miljo' ? 'Miljø' : issue.avvik_type}
+                        <div
+                          style={{
+                            display: "inline-block",
+                            marginTop: 4,
+                            padding: "2px 6px",
+                            fontSize: 9,
+                            fontFamily: "IBM Plex Mono, monospace",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                            border: "1px solid #2a2a2a",
+                            borderRadius: 3,
+                            color:
+                              issue.avvik_type === "ergonomi"
+                                ? "#3b82f6"
+                                : issue.avvik_type === "sikkerhet"
+                                  ? "#ef4444"
+                                  : "#22c55e",
+                          }}
+                        >
+                          {issue.avvik_type === "miljo"
+                            ? "Miljø"
+                            : issue.avvik_type}
                         </div>
                       )}
                       <div className={styles.issueMeta}>
-                        {issue.created_by === user?.hash ? '(deg)' : issue.created_by}
-                        {' · '}{formatDate(issue.created_at)}
+                        {issue.created_by === user?.hash
+                          ? "(deg)"
+                          : issue.created_by}
+                        {" · "}
+                        {formatDate(issue.created_at)}
                       </div>
                     </td>
 
@@ -319,7 +383,9 @@ export default function Home() {
                         <select
                           className={styles.statusSelect}
                           value={issue.status}
-                          onChange={e => updateStatus(issue.id, e.target.value as Status)}
+                          onChange={(e) =>
+                            updateStatus(issue.id, e.target.value as Status)
+                          }
                         >
                           <option value="">Ikke behandlet</option>
                           <option value="oppfattet">Oppfattet</option>
@@ -338,28 +404,44 @@ export default function Home() {
                         <textarea
                           className={styles.solutionInput}
                           value={solutionDrafts[issue.id] ?? issue.solution}
-                          onChange={e => setSolutionDrafts(d => ({ ...d, [issue.id]: e.target.value }))}
+                          onChange={(e) =>
+                            setSolutionDrafts((d) => ({
+                              ...d,
+                              [issue.id]: e.target.value,
+                            }))
+                          }
                           onBlur={() => saveSolution(issue.id)}
                           placeholder="Skriv løsning / svar..."
                           rows={3}
                         />
                       ) : (
                         <div className={styles.solutionText}>
-                          {issue.solution || <span className={styles.dash}>—</span>}
+                          {issue.solution || (
+                            <span className={styles.dash}>—</span>
+                          )}
                         </div>
                       )}
                     </td>
 
                     {/* Blir gjort */}
-                    <td><Dot on={isBliGjort && !isFullfort} color={DOT_COLORS.blir_gjort} /></td>
+                    <td>
+                      <Dot
+                        on={isBliGjort && !isFullfort}
+                        color={DOT_COLORS.blir_gjort}
+                      />
+                    </td>
 
                     {/* Fullført */}
-                    <td><Dot on={isFullfort} color={DOT_COLORS.fullfort} /></td>
+                    <td>
+                      <Dot on={isFullfort} color={DOT_COLORS.fullfort} />
+                    </td>
 
                     {/* Ikke viktig */}
-                    <td><Dot on={isIkkeViktig} color={DOT_COLORS.ikke_viktig} /></td>
+                    <td>
+                      <Dot on={isIkkeViktig} color={DOT_COLORS.ikke_viktig} />
+                    </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </table>
@@ -368,7 +450,12 @@ export default function Home() {
 
       {/* ── New issue modal ── */}
       {showModal && (
-        <div className={styles.overlay} onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
+        <div
+          className={styles.overlay}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowModal(false);
+          }}
+        >
           <div className={styles.modal}>
             <div className={styles.modalTitle}>// NY HMS-SAK</div>
 
@@ -378,9 +465,9 @@ export default function Home() {
                 type="text"
                 placeholder="Kort beskrivelse av problemet"
                 value={newTitle}
-                onChange={e => setNewTitle(e.target.value)}
+                onChange={(e) => setNewTitle(e.target.value)}
                 autoFocus
-                onKeyDown={e => e.key === 'Enter' && submitIssue()}
+                onKeyDown={(e) => e.key === "Enter" && submitIssue()}
               />
             </div>
 
@@ -390,34 +477,40 @@ export default function Home() {
                 rows={4}
                 placeholder="Forklar problemet mer detaljert — hva skjedde, hvor, osv."
                 value={newDesc}
-                onChange={e => setNewDesc(e.target.value)}
+                onChange={(e) => setNewDesc(e.target.value)}
               />
             </div>
 
             <div className={styles.field}>
               <label>Hva type avvik? *</label>
-              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-                {(['ergonomi', 'sikkerhet', 'miljo'] as const).map(type => (
+              <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                {(["ergonomi", "sikkerhet", "miljo"] as const).map((type) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setNewAvvikType(type)}
                     style={{
                       flex: 1,
-                      padding: '8px 4px',
-                      fontFamily: 'IBM Plex Mono, monospace',
+                      padding: "8px 4px",
+                      fontFamily: "IBM Plex Mono, monospace",
                       fontSize: 11,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      border: newAvvikType === type ? '1px solid #e2e8f0' : '1px solid #2a2a2a',
-                      background: newAvvikType === type ? '#1a1a1a' : 'transparent',
-                      color: newAvvikType === type ? '#e2e8f0' : '#555',
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em",
+                      border:
+                        newAvvikType === type
+                          ? "1px solid #e2e8f0"
+                          : "1px solid #2a2a2a",
+                      background:
+                        newAvvikType === type ? "#1a1a1a" : "transparent",
+                      color: newAvvikType === type ? "#e2e8f0" : "#555",
                       borderRadius: 4,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
+                      cursor: "pointer",
+                      transition: "all 0.15s",
                     }}
                   >
-                    {type === 'miljo' ? 'Miljø' : type.charAt(0).toUpperCase() + type.slice(1)}
+                    {type === "miljo"
+                      ? "Miljø"
+                      : type.charAt(0).toUpperCase() + type.slice(1)}
                   </button>
                 ))}
               </div>
@@ -428,49 +521,75 @@ export default function Home() {
             </div>
 
             <div className={styles.modalActions}>
-              <button className={styles.btn} onClick={() => setShowModal(false)}>Avbryt</button>
+              <button
+                className={styles.btn}
+                onClick={() => setShowModal(false)}
+              >
+                Avbryt
+              </button>
               <button
                 className={`${styles.btn} ${styles.btnPrimary}`}
                 onClick={submitIssue}
                 disabled={!newTitle.trim() || saving}
               >
-                {saving ? 'Sender...' : 'Send inn sak'}
+                {saving ? "Sender..." : "Send inn sak"}
               </button>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 function Dot({ on, color }: { on: boolean; color: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{
-        width: 7, height: 7, borderRadius: '50%',
-        background: on ? color : '#2a2a2a',
-        display: 'inline-block', flexShrink: 0,
-      }} />
-      <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#888' }}>
-        {on ? 'JA' : '—'}
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: "50%",
+          background: on ? color : "#2a2a2a",
+          display: "inline-block",
+          flexShrink: 0,
+        }}
+      />
+      <span
+        style={{
+          fontFamily: "IBM Plex Mono, monospace",
+          fontSize: 10,
+          color: "#888",
+        }}
+      >
+        {on ? "JA" : "—"}
       </span>
     </div>
-  )
+  );
 }
 
 function StatusBadge({ status }: { status: Status }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <span style={{
-        width: 7, height: 7, borderRadius: '50%',
-        background: DOT_COLORS[status],
-        display: 'inline-block',
-      }} />
-      <span style={{ fontFamily: 'IBM Plex Mono, monospace', fontSize: 10, color: '#888' }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: "50%",
+          background: DOT_COLORS[status],
+          display: "inline-block",
+        }}
+      />
+      <span
+        style={{
+          fontFamily: "IBM Plex Mono, monospace",
+          fontSize: 10,
+          color: "#888",
+        }}
+      >
         {STATUS_LABELS[status]}
       </span>
     </div>
-  )
+  );
 }
