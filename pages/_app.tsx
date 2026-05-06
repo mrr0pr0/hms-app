@@ -6,7 +6,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>HMS Drømtorp vgs</title>
+        <title>HMS Drømtorp </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
           href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"

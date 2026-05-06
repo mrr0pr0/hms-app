@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import styles from "../styles/Home.module.css";
+import rapStyles from "../styles/Rapport.module.css";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 type Status = "" | "oppfattet" | "blir_gjort" | "fullfort" | "ikke_viktig";
@@ -218,6 +219,10 @@ export default function Home() {
           HMS<span>/</span>AVVIK
           <span className={styles.logoSub}>Drømtorp vgs</span>
         </div>
+        <nav className={rapStyles.nav}>
+          <a href="/" className={`${rapStyles.navLink} ${rapStyles.navActive}`}>Avvik</a>
+          <a href="/rapport" className={rapStyles.navLink}>Rapport</a>
+        </nav>
         <div className={styles.headerRight}>
           {user?.is_admin && <span className={styles.adminBadge}>ADMIN</span>}
           <span className={styles.userBadge}>
@@ -313,9 +318,6 @@ export default function Home() {
                     <div className={styles.empty}>
                       <div className={styles.emptyIcon}>◻</div>
                       <div>Ingen saker</div>
-                      <div className={styles.emptySub}>
-                        Klikk «+ Ny sak» for å registrere et avvik
-                      </div>
                     </div>
                   </td>
                 </tr>

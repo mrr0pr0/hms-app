@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "name": "HMS/Avvik – Design Rules",
+  "name": "HMS/Avvik, Design Rules",
   "description": "Retningslinjer for design når Cursor endrer UI på HMS/Avvik-siden. Fokuser kun på stil, ikke funksjonalitet.",
 
   "style": {
