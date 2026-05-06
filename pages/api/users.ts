@@ -3,11 +3,13 @@ import sql, { initDB } from '@/lib/db'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) { // denne API-ruten håndterer både innlogging og registrering av brukere, samt henting av brukerdata basert på hash
   try {
     await initDB()
 
-    // GET /api/users — get user by hash
+
+/** nesten likt på issues vil ikke komentre 2 ganger */
+    // GET /api/users 
     if (req.method === 'GET') {
       const { hash } = req.query
       if (!hash || typeof hash !== 'string') return res.status(400).json({ error: 'Missing hash' })
@@ -45,17 +47,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ ...user, hash: newHash })
     }
 
-    // POST /api/users/register — register new user (for testing, make first user admin)
-    if (req.method === 'PUT') {
-      const { username, password } = req.body
-      if (!username || !password) return res.status(400).json({ error: 'Missing username or password' })
+    // POST /api/users/register 
+    if (req.method === 'PUT') { // bruker PUT for registrering siden POST allerede brukes for login, dette kan endres 
+      const { username, password } = req.body // hent username og password fra request body
+      if (!username || !password) return res.status(400).json({ error: 'Missing username or password' }) // username og password er påkrevd
 
-      const hashedPassword = await bcrypt.hash(password, 10)
-      const hash = crypto.randomBytes(32).toString('hex')
+      const hashedPassword = await bcrypt.hash(password, 10) // hash password med bcrypt, 10 salt rounds
+      const hash = crypto.randomBytes(32).toString('hex') // generer en random hash for session
 
       // Check if any users exist, if not, make admin
-      const existingUsers = await sql`SELECT COUNT(*) as count FROM users`
-      const isAdmin = existingUsers[0].count === 0
+      const existingUsers = await sql`SELECT COUNT(*) as count FROM users` // hvis ingen brukere så gjør denne til admin
+      const isAdmin = existingUsers[0].count === 0 // hvis det allerede finnes brukere så returner 400
 
       const rows = await sql`
         INSERT INTO users (username, password_hash, hash, is_admin)
@@ -63,10 +65,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         RETURNING *
       `
 
-      return res.status(201).json(rows[0])
+      return res.status(201).json(rows[0]) // returner den opprettede brukeren
     }
 
-    return res.status(405).end()
+    return res.status(405).end() // hvis metoden ikke er håndtert så returner 405
   } catch (err: any) {
     res.status(500).json({ error: err.message })
   }

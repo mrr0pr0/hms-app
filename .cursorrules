@@ -1,0 +1,158 @@
+{
+  "version": 1,
+  "name": "HMS/Avvik – Design Rules",
+  "description": "Retningslinjer for design når Cursor endrer UI på HMS/Avvik-siden. Fokuser kun på stil, ikke funksjonalitet.",
+
+  "style": {
+    "overall": {
+      "theme": "dark",
+      "background": "#050505",           
+      "maxWidth": "100%",
+      "borderRadius": 4,
+      "focus": "diskret, men tydelig kontur"
+    },
+
+    "colors": {
+      "backgroundMain": "#050505",
+      "backgroundSurface": "#111111",
+      "backgroundSurfaceAlt": "#181818",
+
+      "textPrimary": "#F5F5F5",
+      "textSecondary": "#A0A0A0",
+      "textMuted": "#808080",
+
+      "accentPrimary": "#F5F5F5",        
+      "accentSecondary": "#0f9960",     
+      "accentDanger": "#f6b73c",        
+      "accentInfo": "#3b82f6",
+
+      "borderSubtle": "#222222",
+      "borderStrong": "#333333"
+    },
+
+    "typography": {
+      "fontFamily": "system, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif",
+      "baseFontSize": "14px",
+      "titleCase": "all-caps for section labels (ALLE, ÅPNE, OPPFATTET, ...)",
+      "letterSpacingTabs": "0.08em"
+    },
+
+    "layout": {
+      "pagePadding": "24px 32px",
+      "contentMaxWidth": "1400px",
+      "tableRowHeight": "56px",
+      "gapBetweenSections": "16px"
+    },
+
+    "components": {
+      "topBar": {
+        "background": "#050505",
+        "height": "56px",
+        "align": "left",
+        "titleStyle": {
+          "fontSize": "16px",
+          "fontWeight": 500,
+          "letterSpacing": "0.08em"
+        },
+        "rightActions": {
+          "spacing": "8px"
+        }
+      },
+
+      "pillTabs": {
+        "shape": "rounded",
+        "background": "transparent",
+        "backgroundActive": "#F5F5F5",
+        "textColor": "#A0A0A0",
+        "textColorActive": "#050505",
+        "border": "1px solid #333333",
+        "borderActive": "1px solid #F5F5F5",
+        "fontSize": "11px",
+        "fontWeight": 500,
+        "letterSpacing": "0.08em",
+        "padding": "6px 14px"
+      },
+
+      "statusBadges": {
+        "ADMIN": {
+          "background": "#0f9960",
+          "textColor": "#050505",
+          "fontSize": "11px",
+          "fontWeight": 600,
+          "shape": "rounded"
+        },
+        "tagDefault": {
+          "background": "#111111",
+          "textColor": "#F5F5F5",
+          "border": "1px solid #333333"
+        },
+        "statusDot": {
+          "color": "#f6b73c",
+          "size": 8
+        }
+      },
+
+      "cardsAndRows": {
+        "background": "#111111",
+        "hoverBackground": "#181818",
+        "border": "1px solid #222222",
+        "borderRadius": 4,
+        "padding": "12px 16px",
+        "shadow": "none"
+      },
+
+      "tableHeaders": {
+        "background": "transparent",
+        "textColor": "#808080",
+        "fontSize": "11px",
+        "fontWeight": 500,
+        "letterSpacing": "0.08em",
+        "textTransform": "uppercase",
+        "dividerColor": "#222222"
+      },
+
+      "buttons": {
+        "primary": {
+          "background": "#F5F5F5",
+          "textColor": "#050505",
+          "borderRadius": 3,
+          "padding": "8px 16px",
+          "fontSize": "13px",
+          "fontWeight": 500,
+          "hoverBackground": "#E5E5E5"
+        },
+        "secondary": {
+          "background": "#111111",
+          "textColor": "#F5F5F5",
+          "border": "1px solid #333333",
+          "hoverBackground": "#181818"
+        },
+        "danger": {
+          "background": "#f97316",
+          "textColor": "#050505"
+        }
+      },
+
+      "inputs": {
+        "background": "#111111",
+        "textColor": "#F5F5F5",
+        "placeholderColor": "#666666",
+        "border": "1px solid #333333",
+        "borderRadius": 3,
+        "padding": "8px 10px",
+        "focusBorder": "#F5F5F5"
+      }
+    }
+  },
+
+  "instructions": [
+    "Når du bruker Visual Editor eller endrer CSS/JSX-styles: behold mørk bakgrunn (#050505–#181818) og lys tekst.",
+    "Bruk alltid design tokens fra colors-objektet over i stedet for hardkodede hexfarger.",
+    "Behold all-caps labels for faner og kolonne-overskrifter (ALLE, ÅPNE, OPPFATTET osv.) med lett letter-spacing.",
+    "ADMIN-badge skal ha tydelig grønn bakgrunn og mørk tekst, små avrundede hjørner.",
+    "Status-prikker for 'oppfattet' og lignende skal være små, runde og i accentDanger-fargen.",
+    "Tabell-rader skal ha diskret hover-effekt (lytt opp bakgrunn en nyanse, ikke endre tekstfarge).",
+    "Knappen '+ Ny sak' skal være tydelig primær knapp med lys bakgrunn og mørk tekst i høyre topp.",
+    "Endre aldri layout/funksjonalitet automatisk; foreslå kun stilendringer som holder seg til systemet over."
+  ]
+}

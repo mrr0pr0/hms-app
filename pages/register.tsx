@@ -1,42 +1,42 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 
-export default function Register() {
+export default function Register() { // alle varibler osm skal bruker 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+  const handleSubmit = async (e: React.FormEvent) => { // når formen submites så håndterer denne funksjonen det
+    e.preventDefault() // forhindre default form submission
+    setLoading(true) // sett loading state til true
+    setError('') // nullstill error state
 
     try {
-      const res = await fetch('/api/users', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      const res = await fetch('/api/users', { // kall API-ruten for å registrere 
+        method: 'PUT', // burker put
+        headers: { 'Content-Type': 'application/json' }, // sett content type til json
+        body: JSON.stringify({ username, password }), // send username og password i body
       })
 
-      if (res.ok) {
-        const user = await res.json()
-        localStorage.setItem('userHash', user.hash)
-        router.push('/')
-      } else {
-        const data = await res.json()
-        setError(data.error || 'Registration failed')
+      if (res.ok) { // hvis responsen er ok så hent brukerdata og lagre hash
+        const user = await res.json() // hent brukerdata fra responsen
+        localStorage.setItem('userHash', user.hash) // lagre hash i localStorage for å holde brukeren logget inn
+        router.push('/') // naviger til hjem siden
+      } else { // hvis responsen ikke er ok så hent error melding og vis den
+        const data = await res.json() 
+        setError(data.error || 'Registration failed') // sett error state til error meldingen
       }
-    } catch (err) {
-      setError('Network error')
+    } catch (err) { // hvis det skjer en feil i nettverkskallet 
+      setError('Network error') // sett error state til network error
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
+    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>  // enkel styling for å sentrere formen og gjøre den penere 
       <h1>Register</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '10px' }}>

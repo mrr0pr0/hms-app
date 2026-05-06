@@ -10,6 +10,7 @@ interface Issue {
   description: string
   status: Status
   solution: string
+  avvik_type: '' | 'ergonomi' | 'sikkerhet' | 'miljo'
   created_by: string
   created_at: string
 }
@@ -56,6 +57,7 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [newAvvikType, setNewAvvikType] = useState<'' | 'ergonomi' | 'sikkerhet' | 'miljo'>('')
   const [adminCodeInput, setAdminCodeInput] = useState('')
   const [showAdminInput, setShowAdminInput] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -103,10 +105,10 @@ export default function Home() {
     await fetch('/api/issues', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTitle.trim(), description: newDesc.trim(), created_by: user.hash }),
+      body: JSON.stringify({ title: newTitle.trim(), description: newDesc.trim(), avvik_type: newAvvikType, created_by: user.hash }),
     })
     await loadIssues()
-    setNewTitle(''); setNewDesc(''); setShowModal(false)
+    setNewTitle(''); setNewDesc(''); setNewAvvikType(''); setShowModal(false)
     setSaving(false)
   }
 
@@ -282,6 +284,24 @@ export default function Home() {
                       {issue.description && (
                         <div className={styles.issueDesc}>{issue.description}</div>
                       )}
+                      {issue.avvik_type && (
+                        <div style={{
+                          display: 'inline-block',
+                          marginTop: 4,
+                          padding: '2px 6px',
+                          fontSize: 9,
+                          fontFamily: 'IBM Plex Mono, monospace',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.08em',
+                          border: '1px solid #2a2a2a',
+                          borderRadius: 3,
+                          color: issue.avvik_type === 'ergonomi' ? '#3b82f6'
+                               : issue.avvik_type === 'sikkerhet' ? '#ef4444'
+                               : '#22c55e',
+                        }}>
+                          {issue.avvik_type === 'miljo' ? 'Miljø' : issue.avvik_type}
+                        </div>
+                      )}
                       <div className={styles.issueMeta}>
                         {issue.created_by === user?.hash ? '(deg)' : issue.created_by}
                         {' · '}{formatDate(issue.created_at)}
@@ -372,6 +392,35 @@ export default function Home() {
                 value={newDesc}
                 onChange={e => setNewDesc(e.target.value)}
               />
+            </div>
+
+            <div className={styles.field}>
+              <label>Hva type avvik? *</label>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                {(['ergonomi', 'sikkerhet', 'miljo'] as const).map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setNewAvvikType(type)}
+                    style={{
+                      flex: 1,
+                      padding: '8px 4px',
+                      fontFamily: 'IBM Plex Mono, monospace',
+                      fontSize: 11,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      border: newAvvikType === type ? '1px solid #e2e8f0' : '1px solid #2a2a2a',
+                      background: newAvvikType === type ? '#1a1a1a' : 'transparent',
+                      color: newAvvikType === type ? '#e2e8f0' : '#555',
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {type === 'miljo' ? 'Miljø' : type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className={styles.modalMeta}>

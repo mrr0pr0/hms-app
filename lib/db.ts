@@ -31,9 +31,13 @@ export async function initDB() {
       description TEXT,
       status      TEXT NOT NULL DEFAULT '',
       solution    TEXT NOT NULL DEFAULT '',
+      avvik_type  TEXT NOT NULL DEFAULT '',
       created_by  TEXT NOT NULL,
       created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+  `
+  await sql`
+    ALTER TABLE issues ADD COLUMN IF NOT EXISTS avvik_type TEXT NOT NULL DEFAULT ''
   `
 }
 
@@ -46,6 +50,7 @@ export type Issue = {
   description: string
   status: '' | 'oppfattet' | 'blir_gjort' | 'fullfort' | 'ikke_viktig'
   solution: string
+  avvik_type: '' | 'ergonomi' | 'sikkerhet' | 'miljo'
   created_by: string
   created_at: string
 }
